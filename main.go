@@ -8,29 +8,40 @@ import (
 )
 
 func main() {
-	fmt.Println("Enter country for which you want the top news")
 	reader := bufio.NewScanner(os.Stdin)
+	for {
+		fmt.Print("Newscli >: ")
+		var CountryCode string
+		reader.Scan()
 
-	reader.Scan()
+		userInput := reader.Text()
 
-	userInput := reader.Text()
+		words := formatUserInput(userInput)
 
-	words := strings.Fields(userInput)
+		commandName := words[0]
 
-	countryCode := words[0]
-	newsData, err := GetTopNews(countryCode)
-	if err != nil {
-		fmt.Println("An error occured while fetching the news can you check the country code and try again")
-	}
+		command, exists := getCommands()[commandName]
 
-	fmt.Println()
-	for i, articles := range newsData.Articles {
-		if i == 5 {
-			break
+		if !exists {
+			fmt.Println("Command not found please enter help tp get the list of commands supported")
 		}
-		fmt.Println("Title: ", articles.Title)
-		fmt.Println("Link to articl: ", articles.URL)
-		fmt.Println("Article Summary: ", articles.Description)
-		fmt.Println()
+		CountryCode, err := getElement(words, 1)
+		if err != nil {
+		}
+		command.Callback(&CountryCode)
+
 	}
+}
+
+func formatUserInput(input string) []string {
+	lowerInput := strings.ToLower(input)
+	splitInput := strings.Fields(lowerInput)
+	return splitInput
+}
+
+func getElement(arr []string, index int) (string, error) {
+	if index < 0 || index >= len(arr) {
+		return "", fmt.Errorf("index out of bounds")
+	}
+	return arr[index], nil
 }
